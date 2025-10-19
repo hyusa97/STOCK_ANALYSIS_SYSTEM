@@ -1,9 +1,11 @@
 streamlit
-yfinance
 pandas
 numpy
-matplotlib
+yfinance
 requests
+matplotlib
 lxml
 datetime
+nsepython
+nsetools
 streamlit-autorefresh
