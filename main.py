@@ -42,40 +42,40 @@ def do_logout():
 def load_all_stocks():
     """Try fetching NSE stock list with multiple fallbacks."""
     try:
-        # 1️⃣ Try nsepython
+        
         from nsepython import nse_eq_symbols
         symbols = nse_eq_symbols()
         if symbols:
-            st.info("✅ Loaded list via nsepython")
+            st.info(" Loaded list via nsepython")
             return sorted(symbols)
     except Exception as e1:
         st.warning(f"nsepython failed: {e1}")
 
     try:
-        # 2️⃣ Try nsetools
+        
         from nsetools import Nse
         nse = Nse()
         all_stocks = nse.get_stock_codes()
         symbols = list(all_stocks.keys())[1:]  # skip header
         if symbols:
-            st.info("✅ Loaded list via nsetools")
+            st.info(" Loaded list via nsetools")
             return sorted(symbols)
     except Exception as e2:
         st.warning(f"nsetools failed: {e2}")
 
     try:
-        # 3️⃣ GitHub fallback CSV
+        
         df = pd.read_csv(
             "https://raw.githubusercontent.com/saahiluppal/nse-listed-stocks/main/nse_stocks.csv"
         )
         if "Symbol" in df.columns:
             symbols = df["Symbol"].dropna().unique().tolist()
-            st.info("✅ Loaded list via GitHub CSV")
+            st.info(" Loaded list via GitHub CSV")
             return sorted(symbols)
     except Exception as e3:
         st.warning(f"GitHub CSV fallback failed: {e3}")
 
-    # 4️⃣ Final static fallback
+    
     st.error("⚠️ All sources failed. Using minimal fallback list.")
     return ["RELIANCE", "TCS", "INFY", "HDFCBANK", "ICICIBANK"]
 
@@ -123,7 +123,7 @@ def show_stock_search():
                 st.error("⚠️ No data found for this stock. Try another.")
                 return
 
-            st.write(f"### 📊 {info.get('longName', selected_stock)}")
+            st.write(f"###  {info.get('longName', selected_stock)}")
             st.metric("Current Price (₹)", round(info.get("currentPrice", 0), 2))
             st.write(f"**Market Cap:** {info.get('marketCap', 'N/A')}")
             st.write(f"**PE Ratio:** {info.get('trailingPE', 'N/A')}")
@@ -159,7 +159,7 @@ if not st.session_state.logged_in:
             do_login(username.strip(), password)
 
 # -----------------------
-# MAIN APP (after login)
+# After Login
 # -----------------------
 else:
     st.markdown("<h1 style='text-align:center;'>SAS: Stock Analysis System</h1>", unsafe_allow_html=True)
@@ -196,12 +196,23 @@ else:
 
         show_stock_search()
 
+    # -----------------------
+    # PAGE: Portfolio
+    # -----------------------
+
     elif page == "Portfolio":
         st.write("Portfolio page under construction.")
-        # Optional: show_stock_search()
+        
+    # -----------------------
+    # PAGE: Predict
+    # -----------------------
 
     elif page == "Predict":
         st.write("Predict page under construction.")
+
+    # -----------------------
+    # PAGE: Compare
+    # -----------------------
 
     elif page == "Compare":
         st.write("Compare page under construction.")
