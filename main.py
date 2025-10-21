@@ -7,12 +7,12 @@ from datetime import datetime, time
 from nsepython import nse_eq, nse_eq_symbols
 
 # ============================================================
-# 🌐 STREAMLIT CONFIGURATION
+#  STREAMLIT CONFIGURATION
 # ============================================================
 st.set_page_config(page_title="Stock Analysis System", layout="centered")
 
 # ============================================================
-# ⚙️ SESSION STATE INITIALIZATION
+#  SESSION STATE INITIALIZATION
 # ============================================================
 # These keep user data persistent across Streamlit reruns
 if "logged_in" not in st.session_state:
@@ -21,7 +21,7 @@ if "username" not in st.session_state:
     st.session_state.username = ""
 
 # ============================================================
-# 🔐 LOGIN / LOGOUT SYSTEM
+#  LOGIN / LOGOUT SYSTEM
 # ============================================================
 
 def do_login(username: str, password: str):
@@ -44,7 +44,7 @@ def do_logout():
     st.rerun()
 
 # ============================================================
-# 🗃️ DATABASE INITIALIZATION & MIGRATION
+#  DATABASE INITIALIZATION & MIGRATION
 # ============================================================
 
 DB_FILE = "portfolio.db"
@@ -102,14 +102,14 @@ def init_db():
 init_db()
 
 # ============================================================
-# 🧩 DATABASE HELPER FUNCTIONS
+#  DATABASE HELPER FUNCTIONS
 # ============================================================
 
 def record_trade(username, stock_symbol, action, quantity, price, bid_price):
     """
     Records a trade into the database.
     
-    🔒 ACID properties:
+     ACID properties:
     - **Atomicity:** Uses a transaction (BEGIN ... COMMIT/ROLLBACK)
     - **Consistency:** Ensures valid numeric and status values
     - **Isolation:** Uses EXCLUSIVE lock to prevent concurrent conflicts
@@ -124,6 +124,24 @@ def record_trade(username, stock_symbol, action, quantity, price, bid_price):
     except Exception:
         st.error("Invalid numeric inputs for quantity/price.")
         return
+    
+    if quantity <= 0:
+        st.error("Quantity must be greater than zero.")
+        return
+    
+    if action == "SELL":
+        holdings = fetch_holdings(username)
+        current_qty = 0
+
+        if stock_symbol in holdings['stock_symbol'].values:
+            current_qty = holdings.loc[holdings['stock_symbol'] == stock_symbol, "Quantity"].values[0]
+        else:
+            st.error(f"You do not own any shares of {stock_symbol} to sell.")
+            return
+
+        if quantity > current_qty:
+            st.error(f"Cannot sell {quantity} shares. You only have {current_qty} shares.")
+            return
 
     total = quantity * price
     status = "EXECUTED" if abs(price - bid_price) < 0.01 else "PENDING"
@@ -202,7 +220,7 @@ def fetch_holdings(username):
     return holdings
 
 # ============================================================
-# 🔁 AUTO-UPDATER: PENDING ORDERS
+#  AUTO-UPDATER: PENDING ORDERS
 # ============================================================
 
 def update_pending_orders():
@@ -264,7 +282,7 @@ def update_pending_orders():
     conn.close()
 
 # ============================================================
-# 📜 LOAD NSE STOCK SYMBOLS
+#  LOAD NSE STOCK SYMBOLS
 # ============================================================
 
 @st.cache_data(ttl=86400, show_spinner=False)
@@ -279,7 +297,7 @@ def load_all_stocks():
         return ["RELIANCE", "TCS", "INFY", "HDFCBANK", "ICICIBANK"]
 
 # ============================================================
-# 🔍 STOCK SEARCH & DISPLAY
+#  STOCK SEARCH & DISPLAY
 # ============================================================
 
 def show_stock_search():
@@ -344,7 +362,7 @@ def show_stock_search():
             st.error(f"Error fetching stock details: {e}")
 
 # ============================================================
-# 🧭 MAIN APP FLOW
+#  MAIN APP FLOW
 # ============================================================
 
 # --- LOGIN SCREEN ---
