@@ -5,6 +5,7 @@ import yfinance as yf
 import sqlite3
 from datetime import datetime, time
 from nsepython import nse_eq, nse_eq_symbols
+import matplotlib.pyplot as plt
 
 # ============================================================
 #  STREAMLIT CONFIGURATION
@@ -361,6 +362,7 @@ def show_stock_search():
         except Exception as e:
             st.error(f"Error fetching stock details: {e}")
 
+
 # ============================================================
 #  MAIN APP FLOW
 # ============================================================
@@ -384,7 +386,7 @@ else:
 
     # Navigation menu
     st.sidebar.header("Navigation")
-    page = st.sidebar.radio("Go To:", ["Dashboard", "Portfolio", "Trade", "Predict", "Compare", "Transaction History"])
+    page = st.sidebar.radio("Go To:", ["Dashboard", "Portfolio", "Trade", "SAS Assistant", "Transaction History"])
 
     # Auto-refresh every minute to update prices/orders
     try:
@@ -454,13 +456,38 @@ else:
                 st.info("Select a stock to trade.")
 
     # ========================================================
-    # PLACEHOLDER PAGES
+    # SAS ASSISTANT PAGES
     # ========================================================
-    elif page == "Predict":
+    if page == "SAS Assistant":
+        st.subheader("📈 Stocks ")
         st.write("Predict page under construction.")
 
-    elif page == "Compare":
         st.write("Compare page under construction.")
+
+        
+        st.title("SAS DATABASE")
+        def view_database():
+            """
+            Displays the transactions table in a nice Streamlit dataframe.
+            """
+            try:
+                conn = sqlite3.connect(DB_FILE)
+                df = pd.read_sql_query("SELECT * FROM transactions ORDER BY timestamp DESC", conn)
+                conn.close()
+
+                if df.empty:
+                    st.warning("No transactions found in the database yet.")
+                else:
+                    st.subheader("📘 Transactions Table")
+                    st.dataframe(df, use_container_width=True, hide_index=True)
+                    st.caption(f"Total rows: {len(df)}")
+
+            except Exception as e:
+                st.error(f"Failed to load database: {e}")
+
+
+        if st.button("📂 View Database"):
+            view_database()
 
     # ========================================================
     # TRANSACTION HISTORY PAGE
