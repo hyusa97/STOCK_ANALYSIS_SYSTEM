@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 # ============================================================
 #  STREAMLIT CONFIGURATION
 # ============================================================
-st.set_page_config(page_title="Stock Analysis System", layout="centered")
+st.set_page_config(page_title="Stock Analysis System", layout="wide")
 
 # ============================================================
 #  SESSION STATE INITIALIZATION
@@ -159,17 +159,17 @@ def record_trade(username, stock_symbol, action, quantity, price, bid_price):
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, (username, stock_symbol, action, quantity, price, total, bid_price, status))
 
-        conn.commit()  # ✅ COMMIT ensures Atomicity & Durability
+        conn.commit()  #  COMMIT ensures Atomicity & Durability
 
         # --- Feedback to user ---
         if status == "PENDING":
-            st.info(f"📊 {action} order for {stock_symbol} placed at ₹{bid_price} — Pending execution.")
+            st.info(f" {action} order for {stock_symbol} placed at ₹{bid_price} — Pending execution.")
         else:
-            st.success(f"✅ {action} order for {stock_symbol} executed at ₹{price}")
+            st.success(f" {action} order for {stock_symbol} executed at ₹{price}")
 
     except Exception as e:
-        conn.rollback()  # ❌ ROLLBACK ensures Atomicity
-        st.error(f"⚠️ Failed to record trade: {e}")
+        conn.rollback()  #  ROLLBACK ensures Atomicity
+        st.error(f" Failed to record trade: {e}")
     finally:
         conn.close()
 
@@ -496,6 +496,6 @@ else:
         st.subheader("🧾 Transaction History")
         df = fetch_transactions(st.session_state.username)
         if not df.empty:
-            st.dataframe(df)
+            st.dataframe(df, use_container_width = True)
         else:
             st.info("No transactions yet.")
